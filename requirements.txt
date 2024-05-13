@@ -1,0 +1,6 @@
+fastapi 
+uvicorn 
+transformers 
+requests 
+pytest 
+redis
