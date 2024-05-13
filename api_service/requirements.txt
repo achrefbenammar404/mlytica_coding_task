@@ -4,3 +4,8 @@ transformers
 requests 
 pytest 
 redis
+langchain 
+langchain-community 
+langchain_chroma 
+langchain-openai 
+langchain-text-splitters
