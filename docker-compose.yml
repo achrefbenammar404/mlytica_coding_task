@@ -3,13 +3,13 @@ services:
   api_service:
     build: ./api_service
     volumes:
-      - ./common:/usr/src/app/common
+      - ./common:/usr/src/api_service/common
     ports:
       - "8000:8000"
   chatbot_service:
     build: ./chatbot_service
     volumes:
-      - ./common:/usr/src/app/common
+      - ./common:/usr/src/chatbot_service/common
     ports:
       - "8001:8000"
     depends_on:

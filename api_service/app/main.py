@@ -10,7 +10,8 @@ def get_department(placement: str):
     if placement in results:
         return {"department": results[placement]['department']}
     else:
-        raise HTTPException(status_code=404, detail="Placement not found")
+        #raise HTTPException(status_code=404, detail="Placement not found")
+        return 'shiiiiiit'
 
 @app.get("/get_employee/{placement}")
 def get_employee(placement: str):

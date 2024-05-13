@@ -27,3 +27,5 @@ async def ask_chatbot(question: str):
 def extract_placement(question):
     match = re.search(r'\b(\d+)[st|nd|rd|th]\b', question)
     return match.group(0) if match else 'Unknown'
+
+
