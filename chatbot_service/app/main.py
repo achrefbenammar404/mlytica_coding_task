@@ -6,17 +6,14 @@ st.set_page_config(page_title="Competition Results Chat Bot", layout="centered")
 
 st.title("Competition Results Chat Bot")
 
-# Initialize session state for storing chat history and file upload status
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "uploaded" not in st.session_state:
     st.session_state.uploaded = False
 
-# Helper function to add messages to the session state
 def add_message(role, message_text):
     st.session_state.messages.append((role, message_text))
 
-# Asynchronous function to send message to the server and get a response
 async def get_server_response(endpoint, payload=None, files=None):
     url = f"http://localhost:8000/{endpoint}/"
     try:
@@ -37,7 +34,6 @@ async def get_server_response(endpoint, payload=None, files=None):
         st.error(f"An error occurred: {e}")
         return f"An error occurred: {e}"
 
-# Sidebar for file upload, optional placement input, and querying results
 with st.sidebar:
     st.header("Upload a .txt file")
     uploaded_file = st.file_uploader("Choose a .txt file", type="txt")
@@ -48,14 +44,11 @@ with st.sidebar:
         if uploaded_file.name.endswith('.txt'):
             try:
                 with st.spinner('Uploading file...'):
-                    # Read the file content
                     file_content = uploaded_file.getvalue()
 
-                    # Prepare files for multipart form data
                     files = aiohttp.FormData()
                     files.add_field('file', file_content, filename=uploaded_file.name, content_type='text/plain')
 
-                    # Send file to the server
                     response = asyncio.run(get_server_response("upload", files=files))
                     if response.get("status") == "File uploaded and processed successfully":
                         st.success("File uploaded and processed successfully")
@@ -96,11 +89,9 @@ with st.sidebar:
             else:
                 st.error("Please enter a placement.")
 
-# Center chat area
 if st.session_state.uploaded:
     st.markdown("## Chat with AI Assistant")
 
-    # Display chat messages using st.chat_message
     for i, (role, message_text) in enumerate(st.session_state.messages):
         if role == "user":
             with st.chat_message("user", avatar=":material/person:") :
@@ -109,7 +100,6 @@ if st.session_state.uploaded:
             with st.chat_message("assistant", avatar=":material/robot:") :
                 st.markdown(message_text)
 
-    # Form to handle follow-up questions
     with st.form(key="followup_form"):
         followup_input = st.text_input("Ask a follow-up question...", key="followup_input")
         submit_button = st.form_submit_button(label="Send")
@@ -127,5 +117,4 @@ if st.session_state.uploaded:
                 else:
                     add_message("assistant", response)
 
-            # Clear the form input by rerunning the script
             st.experimental_rerun()

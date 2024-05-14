@@ -11,21 +11,17 @@ import logging
 from dotenv import load_dotenv
 import asyncio
 
-# Load environment variables from .env file
 load_dotenv()
 
-# Set up basic configuration for logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Create FastAPI app instance
 app = FastAPI()
 
-# Retrieve sensitive data from environment variables
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY_CHAT")
 AZURE_ENDPOINT = os.getenv("AZURE_ENDPOINT_CHAT")
 AZURE_DEPLOYMENT = os.getenv("AZURE_DEPLOYMENT_CHAT")
 
-information_extractor = InformationExtractor(k = 5)
+information_extractor = InformationExtractor(k = 15)
 
 class FollowUpRequest(BaseModel):
     question: str
@@ -34,23 +30,18 @@ class FollowUpRequest(BaseModel):
 @app.post("/upload/")
 async def upload_file(file: UploadFile = File(...)):
     try:
-        # Check if the uploaded file is a .txt file
         if not file.filename.endswith('.txt'):
             raise HTTPException(status_code=415, detail="Unsupported file type, only .txt files are accepted")
 
-        # Read and decode file contents
         contents = await file.read()
         contents = contents.decode("utf-8")
 
-        # Save contents to a temporary file
         temp_file_path = f"temp_{file.filename}"
         with open(temp_file_path, 'w') as temp_file:
             temp_file.write(contents)
 
-        # Process the file contents
         information_extractor.add_document(temp_file_path)
 
-        # Optionally, delete the temp file if no longer needed
         os.remove(temp_file_path)
 
         return {"filename": file.filename, "status": "File uploaded and processed successfully"}
@@ -60,7 +51,6 @@ async def upload_file(file: UploadFile = File(...)):
         logging.error(f"Error in upload_file: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-# Initialize language model
 llm = AzureChatOpenAI(
     openai_api_key=OPENAI_API_KEY,
     azure_endpoint=AZURE_ENDPOINT,
