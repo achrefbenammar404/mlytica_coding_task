@@ -1,17 +1,13 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException , UploadFile, File, HTTPException
 from langchain_openai.chat_models.azure import AzureChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
-from retrieve_important_parts import InformationExtractor
+from retrieve_important_parts import InformationExtractor 
 from time import sleep
 import os
 import logging
 from dotenv import load_dotenv
-from pydantic import BaseModel
-# Define a Pydantic model for the follow-up question request
-class FollowUpRequest(BaseModel):
-    question: str
 
 # Load environment variables from .env file
 load_dotenv()
@@ -28,6 +24,7 @@ AZURE_ENDPOINT = os.getenv("AZURE_ENDPOINT_CHAT")
 AZURE_DEPLOYMENT = os.getenv("AZURE_DEPLOYMENT_CHAT")
 
 information_extractor = InformationExtractor()
+
 
 @app.post("/upload/")
 async def upload_file(file: UploadFile = File(...)):
@@ -60,13 +57,15 @@ async def upload_file(file: UploadFile = File(...)):
         logging.error(f"Error in upload_file: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+
+
 # Initialize language model
 llm = AzureChatOpenAI(
-    openai_api_key=OPENAI_API_KEY,
-    azure_endpoint=AZURE_ENDPOINT,
-    azure_deployment=AZURE_DEPLOYMENT,
-    api_version="2023-12-01-preview",
-    temperature=0
+            openai_api_key=OPENAI_API_KEY,
+            azure_endpoint=AZURE_ENDPOINT,
+            azure_deployment=AZURE_DEPLOYMENT,
+            api_version="2023-12-01-preview",
+            temperature=0
 )
 
 @app.get("/get_department/{placement}")
@@ -98,23 +97,6 @@ def get_employee(placement: str) -> str:
     except Exception as e:
         logging.error(f"Error in get_employee: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-@app.post("/ask_followup/")
-async def ask_followup(request: FollowUpRequest):
-    """
-    Handle follow-up questions based on previously processed data.
-    """
-    try:
-        context = information_extractor.extract_relevant_info_rag(task=request.question)
-        chain = create_langchain_chain()
-        return chain.invoke({"question": request.question, 'chunks': context})
-    except Exception as e:
-        logging.error(f"Error in ask_followup: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-    
-
-
 
 def create_langchain_chain():
     """
@@ -153,3 +135,5 @@ def get_context_question(element_questioned: str, placement: int) -> (str, str):
         question = f"Who is the {element_questioned} with the placement {placement} in this competition?"
     context = information_extractor.extract_relevant_info_rag(task=question)
     return context, question
+
+
