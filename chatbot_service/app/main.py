@@ -11,13 +11,21 @@ uploaded_file = st.file_uploader("Choose a .txt file", type="txt")
 
 if uploaded_file is not None:
     if uploaded_file.name.endswith('.txt'):
-        with st.spinner('Uploading file...'):
-            files = {'file': uploaded_file.getvalue()}
-            response = requests.post("http://localhost:8000/upload/", files=files)
-            if response.status_code == 200:
-                st.success("File uploaded and processed successfully")
-            else:
-                st.error("Error: " + response.json().get("detail", "Unknown error"))
+        try:
+            # Read the file content
+            file_content = uploaded_file.read()
+            
+            # Define the files dictionary for the multipart/form-data request
+            files = {'file': (uploaded_file.name, file_content, 'text/plain')}
+            
+            with st.spinner('Uploading file...'):
+                response = requests.post("http://localhost:8000/upload/", files=files)
+                if response.status_code == 200:
+                    st.success("File uploaded and processed successfully")
+                else:
+                    st.error(f"Error: {response.json().get('detail', 'Unknown error')}")
+        except Exception as e:
+            st.error(f"An error occurred: {str(e)}")
     else:
         st.error("Please upload a .txt file.")
 
@@ -35,7 +43,7 @@ with col1:
                 if response.status_code == 200:
                     st.write("Department:", response.json())
                 else:
-                    st.error("Error: " + response.json().get("detail", "Unknown error"))
+                    st.error(f"Error: {response.json().get('detail', 'Unknown error')}")
         else:
             st.error("Please enter a placement.")
 
@@ -47,6 +55,6 @@ with col2:
                 if response.status_code == 200:
                     st.write("Employee:", response.json())
                 else:
-                    st.error("Error: " + response.json().get("detail", "Unknown error"))
+                    st.error(f"Error: {response.json().get('detail', 'Unknown error')}")
         else:
             st.error("Please enter a placement.")
