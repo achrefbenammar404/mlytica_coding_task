@@ -29,7 +29,7 @@ class InformationExtractor:
         api_version="2023-12-01-preview"
     )
 
-    def __init__(self, k=15):
+    def __init__(self, k = 20 ):
         """
         Initializes the InformationExtractor with a specified number of documents to retrieve (k).
         """
@@ -56,7 +56,7 @@ class InformationExtractor:
 
         try:
             list_documents = self.retriever.get_relevant_documents(task)
-            return '----------------------------\n\n'.join([f"Chunk Number {i}: {doc.page_content}" for i, doc in enumerate(list_documents)])
+            return ''.join([f"\n\n{doc.page_content}\n\n" for i, doc in enumerate(list_documents)])
         except Exception as e:
             logging.error(f"Error retrieving relevant documents: {e}")
             return "Error occurred while retrieving documents."
@@ -73,7 +73,7 @@ class InformationExtractor:
             self.documents_paths.append(document_path)
             loader = TextLoader(document_path)
             docs = loader.load()
-            text_splitter = RecursiveCharacterTextSplitter(chunk_size=100, chunk_overlap=20)
+            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=20)
             splits = text_splitter.split_documents(docs)
             logging.info(f"Loading document from path: {document_path}")
 
