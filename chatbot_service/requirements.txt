@@ -1,6 +1,5 @@
 fastapi 
-uvicorn 
-transformers 
-requests 
-pytest 
-redis
+asyncio 
+aiohttp
+streamlit 
+streamlit-chat 

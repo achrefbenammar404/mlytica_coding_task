@@ -9,3 +9,5 @@ langchain-community
 langchain_chroma 
 langchain-openai 
 langchain-text-splitters
+langchain-core
+dotenv 
