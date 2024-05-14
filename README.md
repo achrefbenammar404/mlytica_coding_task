@@ -1,5 +1,9 @@
 # Mlytica AI Assistant
 
+## Product Demo
+
+[![Watch the video](https://via.placeholder.com/150)](https://drive.google.com/file/d/1dny0Z7wjFq9n0f2mO0PAQUaA5WLuhCvm/preview)
+
 ## Overview
 
 Mlytica AI Assistant is an advanced document-based question-answering application. It leverages Retrieval-Augmented Generation (RAG) and the FastAPI framework to provide precise and contextually appropriate answers to user queries based on uploaded documents.
