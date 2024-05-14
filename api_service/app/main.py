@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException , UploadFile, File, HTTPException
 from langchain_openai.chat_models.azure import AzureChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -23,10 +23,41 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY_CHAT")
 AZURE_ENDPOINT = os.getenv("AZURE_ENDPOINT_CHAT")
 AZURE_DEPLOYMENT = os.getenv("AZURE_DEPLOYMENT_CHAT")
 
-# Define path and create an instance of InformationExtractor
-path = "competition_results.txt"
 information_extractor = InformationExtractor()
-information_extractor.add_document(document_path=path)
+
+
+@app.post("/upload/")
+async def upload_file(file: UploadFile = File(...)):
+    try:
+        # Check if the uploaded file is a .txt file
+        file_ext = os.path.splitext(file.filename)[1]
+        if file_ext.lower() != '.txt':
+            raise HTTPException(status_code=415, detail="Unsupported file type, only .txt files are accepted")
+
+        # Read and decode file contents
+        contents = await file.read()
+        contents = contents.decode("utf-8")
+
+        # Save contents to a temporary file - this is needed if add_document requires a file path
+        temp_file_path = f"temp_{file.filename}"
+        with open(temp_file_path, 'w') as temp_file:
+            temp_file.write(contents)
+
+        # Update the document in InformationExtractor
+        information_extractor.add_document(document_path=temp_file_path)
+
+        # Optionally, delete the temp file if no longer needed
+        os.remove(temp_file_path)
+
+        return {"filename": file.filename, "status": "File uploaded and processed successfully"}
+    except HTTPException as http_exc:
+        # Reraise the caught HTTPException
+        raise http_exc
+    except Exception as e:
+        logging.error(f"Error in upload_file: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
 
 # Initialize language model
 llm = AzureChatOpenAI(
@@ -104,3 +135,5 @@ def get_context_question(element_questioned: str, placement: int) -> (str, str):
         question = f"Who is the {element_questioned} with the placement {placement} in this competition?"
     context = information_extractor.extract_relevant_info_rag(task=question)
     return context, question
+
+

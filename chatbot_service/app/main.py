@@ -1,31 +1,52 @@
-from fastapi import FastAPI, HTTPException
+import streamlit as st
 import requests
-import re
-from transformers import pipeline
 
-app = FastAPI()
-nlp = pipeline("text-classification")
+st.set_page_config(page_title="Competition Results Uploader", layout="centered")
 
-@app.post("/ask")
-async def ask_chatbot(question: str):
-    try:
-        intent = nlp(question)
-        placement = extract_placement(question)
-        if "employee" in intent[0]['label']:
-            response = requests.get(f"http://api_service:8000/get_employee/{placement}")
-        elif "department" in intent[0]['label']:
-            response = requests.get(f"http://api_service:8000/get_department/{placement}")
+st.title("Competition Results Uploader")
+
+# File upload section
+st.header("Upload a .txt file")
+uploaded_file = st.file_uploader("Choose a .txt file", type="txt")
+
+if uploaded_file is not None:
+    if uploaded_file.name.endswith('.txt'):
+        with st.spinner('Uploading file...'):
+            files = {'file': uploaded_file.getvalue()}
+            response = requests.post("http://localhost:8000/upload/", files=files)
+            if response.status_code == 200:
+                st.success("File uploaded and processed successfully")
+            else:
+                st.error("Error: " + response.json().get("detail", "Unknown error"))
+    else:
+        st.error("Please upload a .txt file.")
+
+# Query section
+st.header("Query Competition Results")
+placement = st.text_input("Enter the placement:")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    if st.button("Get Department"):
+        if placement:
+            with st.spinner('Retrieving department...'):
+                response = requests.get(f"http://localhost:8000/get_department/{placement}")
+                if response.status_code == 200:
+                    st.write("Department:", response.json())
+                else:
+                    st.error("Error: " + response.json().get("detail", "Unknown error"))
         else:
-            raise HTTPException(status_code=404, detail="Question not understood")
-        return response.json()
-    except Exception as e:
-        # Handle unexpected errors
-        print(f"Error processing question: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+            st.error("Please enter a placement.")
 
-
-def extract_placement(question):
-    match = re.search(r'\b(\d+)[st|nd|rd|th]\b', question)
-    return match.group(0) if match else 'Unknown'
-
-
+with col2:
+    if st.button("Get Employee"):
+        if placement:
+            with st.spinner('Retrieving employee...'):
+                response = requests.get(f"http://localhost:8000/get_employee/{placement}")
+                if response.status_code == 200:
+                    st.write("Employee:", response.json())
+                else:
+                    st.error("Error: " + response.json().get("detail", "Unknown error"))
+        else:
+            st.error("Please enter a placement.")
