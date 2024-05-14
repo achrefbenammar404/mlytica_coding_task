@@ -42,7 +42,7 @@ These features could differentiate Mlytica's AI Assistant from other "AI applica
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/your-repo/mlytica_coding_task.git
+   git clone https://github.com/achrefbenammar404/mlytica_coding_task.git
    cd mlytica_coding_task
    ```
 
