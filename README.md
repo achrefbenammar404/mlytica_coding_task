@@ -1,8 +1,8 @@
 # Mlytica AI Assistant
 
 ## Product Demo
-
-[![Watch the video](https://via.placeholder.com/150)](https://drive.google.com/file/d/1dny0Z7wjFq9n0f2mO0PAQUaA5WLuhCvm/preview)
+(linked to a video uploaded on my drive)
+[![Watch the video](thumbnail.gif)](https://drive.google.com/file/d/1dny0Z7wjFq9n0f2mO0PAQUaA5WLuhCvm/preview)
 
 ## Overview
 

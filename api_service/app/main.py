@@ -77,6 +77,8 @@ async def ask_followup_with_context(request: FollowUpRequest) -> str:
     except Exception as e:
         logging.error(f"Error in ask_followup_with_context: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+    
+    
 
 async def process_request(element_questioned: str, placement: str) -> str:
     try:
